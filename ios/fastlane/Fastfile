@@ -1,65 +1,58 @@
 default_platform(:ios)
-DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"]
+
+=begin
 DEVELOPER_APP_ID = ENV["DEVELOPER_APP_ID"]
+DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"]
 PROVISIONING_PROFILE_SPECIFIER = ENV["PROVISIONING_PROFILE_SPECIFIER"]
+TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"]
+TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"]
 
-MY_APP_ID = "68478M23YB.test.app.dx"
-MY_PROFILE = "match development 68478M23YB.test.app.dx"
-MY_TEAM =  "68478M23YB"
+def delete_temp_keychain(name)
+  delete_keychain(
+    name: name
+  ) if File.exist? File.expand_path("~/Library/Keychains/#{name}-db")
+end
 
+def create_temp_keychain(name, password)
+  create_keychain(
+    name: name,
+    password: password,
+    unlock: false,
+    timeout: false
+  )
+end
 
-
-# settings_to_override = {
-#   :BUNDLE_IDENTIFIER => MY_APP_ID,
-#   :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
-#   :DEVELOPMENT_TEAM => MY_TEAM
-# }
+def ensure_temp_keychain(name, password)
+  delete_temp_keychain(name)
+  create_temp_keychain(name, password)
+end
+=end
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
-
-  lane :closed_beta do
-    xcversion(version: "12.3")
+  lane :beta do
     if is_ci
       create_keychain(
-        name: ENV['TEMP_KEYCHAIN_USER'],
-        password: ENV["TEMP_KEYCHAIN_PASSWORD"],
-        unlock: false,
-        timeout: 300
+        name: ENV['MATCH_KEYCHAIN_NAME'],
+        password: ENV["MATCH_KEYCHAIN_PASSWORD"],
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        lock_when_sleeps: false
       )
     end
     match(
-      type: 'development',
-      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+      type: "development",
+      readonly: is_ci,
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
-    #   readonly: true,
       keychain_name: ENV['MATCH_KEYCHAIN_NAME'],
-      keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"], 
+      keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"],
     )
-
-    # gym(
-    #   configuration: "Release",
-    #   workspace: "Runner.xcworkspace",
-    #   scheme: "Runner",
-    #   export_method: "development",
-    #   xcargs: "-allowProvisioningUpdates",
-    #   export_team_id:"68478M23YB",
-    #   export_options: {
-    #     method: "development",
-    #     provisioningProfiles: { 
-    #         DEVELOPER_APP_ID => PROVISIONING_PROFILE_SPECIFIER
-    #     }
-    #   }
-    # )
-
-    # pilot(
-    #   apple_id: "#{DEVELOPER_APP_ID}",
-    #   app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
-    #   skip_waiting_for_build_processing: true,
-    #   skip_submission: true,
-    #   distribute_external: false,
-    #   notify_external_testers: false,
-    #   ipa: "./Runner.ipa"
-    # )
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "MyApp",
+      export_method: "app-store"
+    )
+    upload_to_testflight
   end
 end
