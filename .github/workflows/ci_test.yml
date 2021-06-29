@@ -180,7 +180,6 @@ jobs:
       - name: Deploy to TestFlight
         run: |
           cd ./ios && bundle exec fastlane beta
-        env:
 
   # build_deploy:
   #   #if conditional to prevent a job from running
