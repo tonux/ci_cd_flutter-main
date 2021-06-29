@@ -1,21 +1,59 @@
-# login_app
+## [fastlane match](https://docs.fastlane.tools/actions/match/)
 
-A new Flutter project.
+This repository contains all your certificates and provisioning profiles needed to build and sign your applications. They are encrypted using OpenSSL via a passphrase.
 
-## Getting Started
+**Important:** Make sure this repository is set to private and only your team members have access to this repo.
 
-This project is a starting point for a Flutter application.
+Do not modify this file, as it gets overwritten every time you run _match_.
 
-A few resources to get you started if this is your first Flutter project:
+### Installation
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Make sure you have the latest version of the Xcode command line tools installed:
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# login-page-flutter
+```
+xcode-select --install
+```
 
-<img height="630px" width="330px" src="images/image.png">
-# ci_ci_flutter
-# test_ci_cd_flutter
+Install _fastlane_ using
+
+```
+[sudo] gem install fastlane -NV
+```
+
+or alternatively using `brew install fastlane`
+
+### Usage
+
+Navigate to your project folder and run
+
+```
+fastlane match appstore
+```
+
+```
+fastlane match adhoc
+```
+
+```
+fastlane match development
+```
+
+```
+fastlane match enterprise
+```
+
+For more information open [fastlane match git repo](https://docs.fastlane.tools/actions/match/)
+
+### Content
+
+#### certs
+
+This directory contains all your certificates with their private keys
+
+#### profiles
+
+This directory contains all provisioning profiles
+
+---
+
+For more information open [fastlane match git repo](https://docs.fastlane.tools/actions/match/)
