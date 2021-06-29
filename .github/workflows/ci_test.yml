@@ -169,7 +169,6 @@ jobs:
         with:
           lane: beta
           subdirectory: ios
-        env:
 
   # build_deploy:
   #   #if conditional to prevent a job from running
