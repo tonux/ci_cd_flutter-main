@@ -29,7 +29,7 @@ end
 =end
 
 platform :ios do
-  desc "Push a new beta build to TestFlight"
+  desc "Push a new app build to TestFlight"
   lane :beta do
     if is_ci
       create_keychain(
