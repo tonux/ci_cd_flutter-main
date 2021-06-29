@@ -154,32 +154,22 @@ jobs:
     name: Deploy beta build to TestFlight
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Select Xcode version
-        run: sudo xcode-select -s '/Applications/Xcode_11.3.app/Contents/Developer'
-      - name: Bundle install
-        run: cd ./ios && bundle install
-      - name: Setup JDK
-        uses: actions/setup-java@v1
+      - name: Checkout code from ref
+        uses: actions/checkout@v2
         with:
-          java-version: "12.x"
-      - name: Setup flutter
+          ref: ${{ github.ref }}
+      - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "1.17.0"
-          channel: "stable"
-      - name: Install tools
-        run: |
-          flutter pub get
-          cd ./ios && pod install
-      - name: Setup SSH Keys and known_hosts for fastlane match
-        run: |
-          ...
+          flutter-version: "2.2.0"
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+      - name: Deploy iOS Beta to TestFlight via Fastlane
+        uses: maierj/fastlane-action@v1.4.0
+        with:
+          lane: beta
+          subdirectory: ios
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Deploy to TestFlight
-        run: |
-          cd ./ios && bundle exec fastlane beta
 
   # build_deploy:
   #   #if conditional to prevent a job from running
