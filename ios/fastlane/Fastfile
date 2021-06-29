@@ -1,0 +1,65 @@
+default_platform(:ios)
+DEVELOPER_APP_IDENTIFIER = ENV["DEVELOPER_APP_IDENTIFIER"]
+DEVELOPER_APP_ID = ENV["DEVELOPER_APP_ID"]
+PROVISIONING_PROFILE_SPECIFIER = ENV["PROVISIONING_PROFILE_SPECIFIER"]
+
+MY_APP_ID = "68478M23YB.test.app.dx"
+MY_PROFILE = "match development 68478M23YB.test.app.dx"
+MY_TEAM =  "68478M23YB"
+
+
+
+# settings_to_override = {
+#   :BUNDLE_IDENTIFIER => MY_APP_ID,
+#   :PROVISIONING_PROFILE_SPECIFIER => MY_PROFILE,
+#   :DEVELOPMENT_TEAM => MY_TEAM
+# }
+
+platform :ios do
+  desc "Push a new beta build to TestFlight"
+
+  lane :closed_beta do
+    xcversion(version: "12.3")
+    if is_ci
+      create_keychain(
+        name: ENV['TEMP_KEYCHAIN_USER'],
+        password: ENV["TEMP_KEYCHAIN_PASSWORD"],
+        unlock: false,
+        timeout: 300
+      )
+    end
+    match(
+      type: 'development',
+      app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+    #   readonly: true,
+      keychain_name: ENV['MATCH_KEYCHAIN_NAME'],
+      keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"], 
+    )
+
+    # gym(
+    #   configuration: "Release",
+    #   workspace: "Runner.xcworkspace",
+    #   scheme: "Runner",
+    #   export_method: "development",
+    #   xcargs: "-allowProvisioningUpdates",
+    #   export_team_id:"68478M23YB",
+    #   export_options: {
+    #     method: "development",
+    #     provisioningProfiles: { 
+    #         DEVELOPER_APP_ID => PROVISIONING_PROFILE_SPECIFIER
+    #     }
+    #   }
+    # )
+
+    # pilot(
+    #   apple_id: "#{DEVELOPER_APP_ID}",
+    #   app_identifier: "#{DEVELOPER_APP_IDENTIFIER}",
+    #   skip_waiting_for_build_processing: true,
+    #   skip_submission: true,
+    #   distribute_external: false,
+    #   notify_external_testers: false,
+    #   ipa: "./Runner.ipa"
+    # )
+  end
+end
